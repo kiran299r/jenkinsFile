@@ -25,10 +25,12 @@ node
          sh "scp target/maven-web-application.war ec2-user@13.232.238.246:/opt/apache-tomcat-9.0.34/webapps/"
          }
     }
+    /*
     stage('EmailNotification')
     {
         emailext body: '''Build is over
         Regards
         Mithun Technologies''', subject: 'Build is over', to: 'kiran.j1213@gmail.com'
     }
+    */
 }
