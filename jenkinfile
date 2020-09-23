@@ -1,31 +1,36 @@
 node
 {
-    def mavenhome=tool name:'maven3.6.2'
-    
+    def mavenhome=tool name:'Maven 3.6.3'
+    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '3', numToKeepStr: '3')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
     stage('CheckoutCode')
     {
-        git branch: 'development', credentialsId: 'd2e698df-1aaf-4717-ba7c-bc596717e822', url: 'https://github.com/kiran299r/maven-web-application.git'
+        git branch: 'development', credentialsId: 'Git_Credentials', url: 'https://github.com/kiran299r/maven-web-application.git'
     }
     stage('Build')
     {
         sh "${mavenhome}/bin/mvn clean package"
     }
+    
     stage('SonarQubereportExecution')
     {
         sh "${mavenhome}/bin/mvn sonar:sonar"
     }
+    
+    
     stage('Uploadartifactsintonexus')
     {
         sh "${mavenhome}/bin/mvn clean deploy"
     }
-    stage('DeployetoTomcat')
+   
+   stage('DeployetoTomcat')
     {
-        sshagent(['77ce7348-a6ec-4915-b54d-fa68471d79b1']) 
-        {
-         sh "scp target/maven-web-application.war ec2-user@13.232.238.246:/opt/apache-tomcat-9.0.34/webapps/"
+        sshagent(['80d31f12-e22a-4b28-a65e-33e6aa76b18b']) {
+
+         sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@52.66.239.60:/opt/apache-tomcat-8.5.58/webapps/"
          }
     }
-    /*
+        
+ /*
     stage('EmailNotification')
     {
         emailext body: '''Build is over
@@ -33,4 +38,5 @@ node
         Mithun Technologies''', subject: 'Build is over', to: 'kiran.j1213@gmail.com'
     }
     */
+
 }
